@@ -2,64 +2,248 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- CLAVE: Esta etiqueta le dice al celular que adapte el zoom al ancho de la pantalla -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Chronos Arcade: The Timeline Glitch</title>
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background-color: #0b0c10; color: #c5c6c7; text-align: center; padding: 20px; margin: 0; user-select: none; }
-        .arcade-machine { background-color: #1f2833; border: 4px solid #66fcf1; box-shadow: 0 0 20px #66fcf1, inset 0 0 20px #45a29e; padding: 30px; border-radius: 15px; max-width: 750px; margin: 0 auto; position: relative; }
-        h2 { color: #f0f; text-shadow: 0 0 10px #f0f; text-transform: uppercase; letter-spacing: 2px; }
+        body { 
+            font-family: 'Courier New', Courier, monospace; 
+            background-color: #0b0c10; 
+            color: #c5c6c7; 
+            text-align: center; 
+            padding: 20px 10px; /* Reducido para móviles */
+            margin: 0; 
+            user-select: none; 
+            /* Evita el destello azul al tocar botones en Android/iOS */
+            -webkit-tap-highlight-color: transparent; 
+        }
         
-        /* PANTALLA DE INICIO (INSERT COIN) */
-        .overlay-inicio { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(11, 12, 16, 0.98); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 11px; }
-        .overlay-inicio h1 { color: #66fcf1; font-size: 40px; text-shadow: 0 0 20px #66fcf1; margin-bottom: 5px; }
-        .overlay-inicio p { font-size: 18px; color: #c5c6c7; max-width: 80%; line-height: 1.5; }
-        .insert-coin { color: #ffeb3b; font-size: 24px; animation: parpadeo 1s infinite; margin-top: 40px; cursor: pointer; text-shadow: 0 0 10px #ffeb3b; font-weight: bold; }
+        .arcade-machine { 
+            background-color: #1f2833; 
+            border: 4px solid #66fcf1; 
+            box-shadow: 0 0 20px #66fcf1, inset 0 0 20px #45a29e; 
+            padding: 30px 20px; 
+            border-radius: 15px; 
+            max-width: 750px; 
+            width: 100%;
+            box-sizing: border-box; /* Asegura que el padding no desborde el ancho */
+            margin: 0 auto; 
+            position: relative; 
+        }
+
+        /* Usamos font-size adaptativo para el título */
+        h2 { 
+            color: #f0f; 
+            text-shadow: 0 0 10px #f0f; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            margin-top: 5px;
+        }
+        
+        /* PANTALLA DE INICIO OVERLAY ADAPTADA */
+        .overlay-inicio { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(11, 12, 16, 0.98); 
+            z-index: 100; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            border-radius: 11px; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .overlay-inicio h1 { 
+            color: #66fcf1; 
+            font-size: clamp(1.8rem, 6vw, 3rem); 
+            text-shadow: 0 0 20px #66fcf1; 
+            margin: 0 0 15px 0; 
+        }
+        .overlay-inicio p { 
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem); 
+            color: #c5c6c7; 
+            max-width: 90%; 
+            line-height: 1.5; 
+            margin: 5px 0;
+        }
+        .insert-coin { 
+            color: #ffeb3b; 
+            font-size: clamp(1.2rem, 5vw, 1.6rem); 
+            animation: parpadeo 1s infinite; 
+            margin-top: 30px; 
+            cursor: pointer; 
+            text-shadow: 0 0 10px #ffeb3b; 
+            font-weight: bold; 
+            line-height: 1.4;
+        }
         @keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .energy-container { border: 2px solid #66fcf1; height: 25px; border-radius: 12px; margin: 20px 0; background-color: #000; overflow: hidden; position: relative; }
+        /* Barra de Energía */
+        .energy-container { 
+            border: 2px solid #66fcf1; 
+            height: 22px; 
+            border-radius: 12px; 
+            margin: 15px 0; 
+            background-color: #000; 
+            overflow: hidden; 
+            position: relative; 
+        }
         #energy-bar { background: linear-gradient(90deg, #f0f, #66fcf1); height: 100%; width: 0%; transition: width 0.4s ease-out; }
         
-        .pantalla-oracion { background-color: #000; border: 2px dashed #45a29e; padding: 25px 20px; font-size: 22px; margin-bottom: 20px; border-radius: 8px; line-height: 1.8; }
+        /* Pantalla de la Oración - Se adapta el tamaño de letra */
+        .pantalla-oracion { 
+            background-color: #000; 
+            border: 2px dashed #45a29e; 
+            padding: clamp(15px, 4vw, 25px) clamp(10px, 3vw, 20px); 
+            font-size: clamp(1.05rem, 4.5vw, 1.35rem); 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            line-height: 1.6; 
+            box-sizing: border-box;
+        }
         .marcador-tiempo { color: #ffeb3b; text-shadow: 0 0 15px #ffeb3b; font-weight: bold; }
-        .espacio-blanco { display: inline-block; min-width: 80px; border-bottom: 3px solid #f0f; color: #f0f; text-shadow: 0 0 10px #f0f; font-weight: bold; padding: 0 10px; }
+        .espacio-blanco { display: inline-block; min-width: 60px; border-bottom: 3px solid #f0f; color: #f0f; text-shadow: 0 0 10px #f0f; font-weight: bold; padding: 0 5px; }
         
-        /* EL NUEVO INDICADOR DE TIEMPOS VERBALES CON COLORES */
-        .indicador-tiempo { display: inline-block; padding: 8px 25px; border-radius: 8px; font-weight: bold; font-size: 20px; margin-bottom: 15px; color: #fff; text-shadow: 1px 1px 2px #000; text-transform: uppercase; letter-spacing: 2px; }
+        /* Indicador de Color en Pantalla */
+        .indicador-tiempo { 
+            display: inline-block; 
+            padding: 8px 20px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: clamp(0.9rem, 4vw, 1.25rem); 
+            margin-bottom: 15px; 
+            color: #fff; 
+            text-shadow: 1px 1px 2px #000; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
         .bg-sepia { background-color: #b18904; border: 2px solid #e2c044; box-shadow: 0 0 20px #b18904; }
         .bg-verde { background-color: #28a745; border: 2px solid #54e346; box-shadow: 0 0 20px #28a745; }
         .bg-violeta { background-color: #7b2cbf; border: 2px solid #9d4edd; box-shadow: 0 0 20px #7b2cbf; }
 
-        .panel-epocas { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .btn-epoca { background-color: transparent; color: #66fcf1; border: 2px solid #66fcf1; padding: 15px 20px; font-size: 16px; font-family: 'Courier New', Courier, monospace; font-weight: bold; cursor: pointer; border-radius: 5px; box-shadow: 0 0 10px #66fcf1 inset; transition: all 0.2s; }
+        /* BOTONERA ADAPTATIVA */
+        .panel-epocas { 
+            display: flex; 
+            justify-content: center; 
+            gap: 12px; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; /* Clave: si no caben en horizontal, se bajan */
+        }
+        .btn-epoca { 
+            background-color: transparent; 
+            color: #66fcf1; 
+            border: 2px solid #66fcf1; 
+            padding: 14px 15px; 
+            font-size: clamp(0.85rem, 3.8vw, 1rem); 
+            font-family: 'Courier New', Courier, monospace; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            box-shadow: 0 0 10px #66fcf1 inset; 
+            transition: all 0.2s; 
+            flex: 1 1 140px; /* Intenta medir 140px, pero puede crecer o achicarse */
+            min-height: 48px; /* Garantiza el tamaño táctil de accesibilidad */
+            box-sizing: border-box;
+        }
         .btn-epoca:hover { background-color: #66fcf1; color: #000; box-shadow: 0 0 20px #66fcf1; }
         
-        .panel-verbos { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn-verbo { background-color: #f0f; color: #fff; border: none; padding: 12px 20px; font-size: 18px; font-family: 'Courier New', Courier, monospace; font-weight: bold; cursor: pointer; border-radius: 5px; box-shadow: 0 0 10px #f0f; transition: all 0.2s; }
+        .panel-verbos { 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; 
+        }
+        .btn-verbo { 
+            background-color: #f0f; 
+            color: #fff; 
+            border: none; 
+            padding: 12px 18px; 
+            font-size: clamp(0.9rem, 4vw, 1.1rem); 
+            font-family: 'Courier New', Courier, monospace; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            box-shadow: 0 0 10px #f0f; 
+            transition: all 0.2s; 
+            flex: 1 1 100%; /* En celulares, un verbo por renglón evita toques erróneos */
+            min-height: 48px;
+            box-sizing: border-box;
+        }
         .btn-verbo:hover { background-color: #ff4dff; box-shadow: 0 0 20px #f0f; }
 
-        .botones-finales { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
-        .btn-reiniciar { background-color: #66fcf1; color: #000; border: none; padding: 15px 25px; font-size: 18px; font-weight: bold; font-family: 'Courier New', Courier, monospace; cursor: pointer; border-radius: 5px; box-shadow: 0 0 20px #66fcf1; transition: 0.2s; }
+        /* Botones Finales Adaptativos */
+        .botones-finales { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            margin-top: 15px; 
+        }
+        .btn-reiniciar { 
+            background-color: #66fcf1; 
+            color: #000; 
+            border: none; 
+            padding: 14px 20px; 
+            font-size: clamp(0.9rem, 4vw, 1.1rem); 
+            font-weight: bold; 
+            font-family: 'Courier New', Courier, monospace; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            box-shadow: 0 0 20px #66fcf1; 
+            transition: 0.2s; 
+            flex: 1 1 200px;
+            min-height: 48px;
+        }
         .btn-reiniciar:hover { background-color: #45a29e; }
         .btn-menu { background-color: #f0f; box-shadow: 0 0 20px #f0f; color: white; }
         .btn-menu:hover { background-color: #c900c9; }
 
+        /* Errores */
         .glitch-error { animation: sacudir 0.3s ease-in-out; border-color: #f00 !important; box-shadow: 0 0 20px #f00 !important; }
         @keyframes sacudir { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } 100% { transform: translateX(0); } }
+        
         .hidden { display: none !important; }
-        #mensaje-feedback { font-size: 18px; font-weight: bold; min-height: 25px; margin-bottom: 10px; }
-        .instrucciones { font-size: 14px; color: #adb5bd; margin-top: 20px; }
+        #mensaje-feedback { font-size: clamp(0.85rem, 3.8vw, 1.1rem); font-weight: bold; min-height: 25px; margin-bottom: 10px; }
+        .instrucciones { font-size: clamp(0.75rem, 3.2vw, 0.85rem); color: #adb5bd; margin-top: 15px; }
+
+        /* MEDIA QUERY PARA CELULARES EXTREMADAMENTE CHICOS */
+        @media (max-width: 480px) {
+            .arcade-machine {
+                padding: 15px 12px;
+                border-width: 3px;
+            }
+            .panel-epocas {
+                flex-direction: column; /* Apila las palancas verticales en pantallas chicas */
+                gap: 8px;
+            }
+            .btn-epoca {
+                width: 100%;
+                padding: 12px;
+            }
+            .btn-verbo {
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div class="arcade-machine" id="maquina">
     
+    <!-- PANTALLA DE INICIO OVERLAY -->
     <div id="pantalla-inicio" class="overlay-inicio">
         <h1>CHRONOS ARCADE</h1>
         <p>El flujo temporal ha colapsado. Las oraciones de los viajeros están perdidas en distintas dimensiones.</p>
         <p style="color: #66fcf1;">Misión: Identificá la pista temporal y ajustá el verbo para restaurar la línea de tiempo.</p>
         <div class="insert-coin" onclick="arrancarArcade()">
             INSERT COIN<br>
-            <span style="font-size: 16px; color: #c5c6c7; font-weight: normal; text-shadow: none;">(Presioná ENTER o hacé clic para comenzar)</span>
+            <span style="font-size: 13px; color: #c5c6c7; font-weight: normal; text-shadow: none;">(Hacé clic o presioná ENTER para comenzar)</span>
         </div>
     </div>
 
@@ -68,7 +252,7 @@
     <div class="energy-container">
         <div id="energy-bar"></div>
     </div>
-    <div style="font-size: 14px; margin-bottom: 15px; color: #66fcf1; font-weight: bold;">
+    <div style="font-size: clamp(11px, 3.2vw, 14px); margin-bottom: 15px; color: #66fcf1; font-weight: bold;">
         ENERGÍA TEMPORAL: <span id="texto-energia">0</span>% (<span id="contador-misiones">0</span>/10)
     </div>
 
@@ -165,14 +349,6 @@
         { inicio: "He <span class='marcador-tiempo'>normally</span> ", fin: " work at 5:00 PM.", epocaCorrecta: "PRESENT", respuestaCorrecta: "finishes", distractores: ["is finishing", "finish"] },
 
         // --- PAST SIMPLE vs PAST CONTINUOUS & ERRORES COMUNES ---
-        { inicio: "I ", fin: " my friend on the phone <span class='marcador-tiempo'>yesterday</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "called", distractores: ["was calling", "call"] },
-        { inicio: "They ", fin: " the movie <span class='marcador-tiempo'>last night</span>. It was very boring.", epocaCorrecta: "PAST", respuestaCorrecta: "didn't enjoy", distractores: ["wasn't enjoying", "didn't enjoyed"] },
-        { inicio: "We ", fin: " to Canada <span class='marcador-tiempo'>two years ago</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "traveled", distractores: ["were traveling", "travel"] },
-        { inicio: "She ", fin: " to the train station <span class='marcador-tiempo'>yesterday morning</span>, but she missed it.", epocaCorrecta: "PAST", respuestaCorrecta: "hurried", distractores: ["was hurrying", "hurry"] },
-        { inicio: "The mechanic ", fin: " my car <span class='marcador-tiempo'>last weekend</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "fixed", distractores: ["was fixing", "fix"] },
-        { inicio: "I ", fin: " television <span class='marcador-tiempo'>last night</span> because I was tired.", epocaCorrecta: "PAST", respuestaCorrecta: "didn't watch", distractores: ["wasn't watching", "didn't watched"] },
-        { inicio: "My family ", fin: " the entire summer trip in one afternoon <span class='marcador-tiempo'>last week</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "planned", distractores: ["were planning", "planed"] },
-        { inicio: "Ross and Rachel ", fin: " a break <span class='marcador-tiempo'>a long time ago</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "took", distractores: ["were taking", "taked"] },
         { inicio: "I ", fin: " my parents <span class='marcador-tiempo'>last weekend</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "visited", distractores: ["was visiting", "visit"] },
         { inicio: "She ", fin: " her homework <span class='marcador-tiempo'>two hours ago</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "finished", distractores: ["was finishing", "finish"] },
         { inicio: "They ", fin: " to the beach <span class='marcador-tiempo'>yesterday</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "went", distractores: ["were going", "goed"] },
@@ -184,6 +360,14 @@
         { inicio: "The store ", fin: " <span class='marcador-tiempo'>last year</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "opened", distractores: ["was opening", "open"] },
         { inicio: "We ", fin: " pizza for dinner <span class='marcador-tiempo'>last night</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "had", distractores: ["were having", "have"] },
         { inicio: "He ", fin: " the office <span class='marcador-tiempo'>an hour ago</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "left", distractores: ["was leaving", "leaved"] },
+        { inicio: "I ", fin: " my friend on the phone <span class='marcador-tiempo'>yesterday</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "called", distractores: ["was calling", "call"] },
+        { inicio: "They ", fin: " the movie <span class='marcador-tiempo'>last night</span>. It was very boring.", epocaCorrecta: "PAST", respuestaCorrecta: "didn't enjoy", distractores: ["wasn't enjoying", "didn't enjoyed"] },
+        { inicio: "We ", fin: " to Canada <span class='marcador-tiempo'>two years ago</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "traveled", distractores: ["were traveling", "travel"] },
+        { inicio: "She ", fin: " to the train station <span class='marcador-tiempo'>yesterday morning</span>, but she missed it.", epocaCorrecta: "PAST", respuestaCorrecta: "hurried", distractores: ["was hurrying", "hurry"] },
+        { inicio: "The mechanic ", fin: " my car <span class='marcador-tiempo'>last weekend</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "fixed", distractores: ["was fixing", "fix"] },
+        { inicio: "I ", fin: " television <span class='marcador-tiempo'>last night</span> because I was tired.", epocaCorrecta: "PAST", respuestaCorrecta: "didn't watch", distractores: ["wasn't watching", "didn't watched"] },
+        { inicio: "My family ", fin: " the entire summer trip in one afternoon <span class='marcador-tiempo'>last week</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "planned", distractores: ["were planning", "planed"] },
+        { inicio: "Ross and Rachel ", fin: " a break <span class='marcador-tiempo'>a long time ago</span>.", epocaCorrecta: "PAST", respuestaCorrecta: "took", distractores: ["were taking", "taked"] },
 
         // --- FUTURE: WILL vs GOING TO ---
         { inicio: "We ", fin: " to Bariloche <span class='marcador-tiempo'>next month</span>! We already bought the tickets.", epocaCorrecta: "FUTURE", respuestaCorrecta: "are going to travel", distractores: ["will travel", "travel"] },
@@ -220,6 +404,7 @@
         return array.sort(() => Math.random() - 0.5);
     }
 
+    // --- FLUJO DEL JUEGO ---
     function arrancarArcade() {
         if (juegoActivo) return;
         reproducirSonido('coin');
@@ -289,7 +474,6 @@
             document.getElementById("mensaje-feedback").innerText = "";
             document.getElementById("maquina").classList.remove("glitch-error");
             
-            // Ocultar el indicador de color
             document.getElementById("indicador-tiempo").className = "indicador-tiempo hidden";
 
         } else {
@@ -319,14 +503,12 @@
             feedback.style.color = "#66fcf1";
             document.getElementById("panel-epocas").classList.add("hidden");
             
-            // 1. Configurar el indicador de color según la época
             indicador.innerText = `MODO: ${epocaSeleccionada}`;
-            indicador.className = "indicador-tiempo"; // Limpia las clases anteriores
+            indicador.className = "indicador-tiempo"; 
             if (epocaSeleccionada === "PAST") indicador.classList.add("bg-sepia");
             else if (epocaSeleccionada === "PRESENT") indicador.classList.add("bg-verde");
             else if (epocaSeleccionada === "FUTURE") indicador.classList.add("bg-violeta");
             
-            // 2. Mostrar los botones de los verbos
             const panelVerbos = document.getElementById("panel-verbos");
             panelVerbos.innerHTML = ""; 
             
